@@ -9,7 +9,7 @@ The final, precompiled docker image is available via
 and can be retrieved with the following shell command:
 
 ```
-docker pull denalitherapeutics/supt4h1
+docker pull denalitherapeutics/naguib_et_al_cell_reports_2019
 ```
 
 # Rebuilding the docker image from scratch
@@ -27,7 +27,7 @@ To start the docker build process, execute the following command in the home
 directory of this R package:
 
 ```bash
-docker build -t supt4h1 inst/docker
+docker build -t naguib_et_al_cell_reports_2019 inst/docker
 ```
 
 # Starting a docker container
@@ -43,7 +43,7 @@ execute
 docker run --rm \
     -v $PWD:/home/rstudio/SUPT4H1 \
     -d -p 8787:8787 \
-    supt4h1
+    naguib_et_al_cell_reports_2019
 ```
 
 browse to `http://localhost:8787` and log in as user `rstudio` (password:
