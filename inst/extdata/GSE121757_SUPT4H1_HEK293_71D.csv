@@ -1,0 +1,13 @@
+sample_id,name,rnai_treatment,treatment_conc,treatment_conc_unit,ercc_mix
+71D_scramble_1,71D_scramble_1,scramble,25,nM,mix1
+71D_scramble_2,71D_scramble_2,scramble,25,nM,mix1
+71D_scramble_3,71D_scramble_3,scramble,25,nM,mix1
+71D_scramble_4,71D_scramble_4,scramble,25,nM,mix1
+71D_scramble_5,71D_scramble_5,scramble,25,nM,mix1
+71D_scramble_6,71D_scramble_6,scramble,25,nM,mix1
+71D_SUPT4H1_1,71D_SUPT4H1_1,SUPT4H1,25,nM,mix2
+71D_SUPT4H1_2,71D_SUPT4H1_2,SUPT4H1,25,nM,mix2
+71D_SUPT4H1_3,71D_SUPT4H1_3,SUPT4H1,25,nM,mix2
+71D_SUPT4H1_4,71D_SUPT4H1_4,SUPT4H1,25,nM,mix2
+71D_SUPT4H1_5,71D_SUPT4H1_5,SUPT4H1,25,nM,mix2
+71D_SUPT4H1_6,71D_SUPT4H1_6,SUPT4H1,25,nM,mix2

@@ -1,0 +1,98 @@
+---
+title: "Figure S1"
+date: "`r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Figure S1}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+```
+
+```{r eval=TRUE, include=FALSE}
+# switch to the project-specific library if you have one (e.g. in the companion
+# docker container)
+library(switchr)
+if (file.exists(file.path(switchrBaseDir(), "supt4h1"))) {
+  switchrNoUnload(TRUE)
+  switchTo("supt4h1")
+}
+```
+
+```{r include=FALSE}
+library(SUPT4H1)
+library(dplyr)
+library(edgeR)
+library(ggplot2)
+library(rlang)
+library(stringr)
+library(tibble)
+```
+
+```{r}
+kLabels = list(
+  SUPT4H1 = "SUPT4H1 siRNA", 
+  Scramble = "Scramble siRNA",
+  Control = "Control cell line", 
+  DARP1 = "DARP cell line 1",
+  DARP2 = "DARP cell line 2"
+  )
+kColors <- setNames(rep(c("#4DAF4A", "#377EB8", "#E41A1C"), 2),
+                    c("Control", "DARP1", "DARP2", "Control cell line",
+                      "DARP cell line 1", "DARP cell line 2"))
+theme_set(theme_linedraw(16))
+```
+
+```{r}
+dge <- load_dataset("HEK293")
+
+cpm_norm <- edgeR::cpm(
+    dge,
+    normalized.lib.sizes = TRUE, log = FALSE) %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column(var = "ensembl_gene_id") %>%
+    tidyr::gather(key = "sample_id", value = "cpm", -ensembl_gene_id) %>%
+    dplyr::left_join(dge$samples, by = "sample_id") %>%
+    dplyr::left_join(dge$genes, by = "ensembl_gene_id") 
+```
+
+## Figure S1F: SUPT4H1 RNAi (HE293 cells, RNAseq)
+
+```{r fig.width=6, fig.height=4, fig.show='hold', fig.cap="Figure 1C: SUPT4H1 RNAi (HE293 cells, RNAseq)"}
+p <- cpm_norm %>%
+  dplyr::filter(hgnc_symbol == "SUPT4H1") %>%
+  dplyr::mutate(treatment = recode(treatment, !!!kLabels),
+                cell_line = recode(cell_line, !!!kLabels)) %>%
+  ggplot(aes(x = treatment, y = cpm, fill = cell_line)) +
+  geom_jitter(size = 4, shape = 21, width = 0.15, alpha = 0.5) + 
+  scale_fill_manual(values = kColors, guide = FALSE) +
+  facet_wrap(~ cell_line) + 
+  expand_limits(y = c(0, NA)) +
+  ylab(bquote(
+    atop(
+      "Normalized"~italic("SUPT4H1"), 
+      "expression (CPM)"))
+  ) +
+  xlab("") +
+  theme(axis.text.x  = element_text(angle = 45, size = 14, vjust = 1,
+                                    hjust = 1), 
+        panel.grid = element_blank()) +
+  scale_x_discrete(labels = c(
+    bquote(italic("SUPT4H1")~"siRNA"),
+    "Scramble siRNA"
+  ))
+print(p)
+```

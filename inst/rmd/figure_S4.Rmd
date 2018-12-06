@@ -1,0 +1,106 @@
+---
+title: "Figure S4"
+date: "`r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Figure S4}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+```
+
+```{r include = FALSE}
+# switch to the project-specific library if you have one (e.g. in the companion
+# docker container)
+library(switchr)
+if (file.exists(file.path(switchrBaseDir(), "supt4h1"))) {
+  switchrNoUnload(TRUE)
+  switchTo("supt4h1")
+}
+```
+
+```{r include=FALSE}
+library(SUPT4H1)
+library(dplyr)
+library(ggplot2)
+library(limma)
+library(tibble)
+theme_set(theme_linedraw(base_size = 16) +
+          theme(legend.key = element_blank()))
+```
+
+```{r}
+kFdr <- 0.1
+gene_sets <- reactome_sets()
+```
+
+## Figure S4A: SUPT4H1 RNAi effect in HEK293 cells
+
+```{r}
+v <- fit_hek293(normalize = "spike-in", output = "v")
+fit <- fit_hek293(normalize = "spike-in", output = "fit")
+tt <- topTable(fit, coef = "SUPT4H1", n = Inf)
+```
+
+```{r}
+reactome_res <- camera(v, ids2indices(gene_sets, row.names(v)),
+                       contrast = match("SUPT4H1", colnames(v$design))) %>%
+  tibble::rownames_to_column("set_name") %>%
+  dplyr::arrange(PValue)
+```
+
+The following table shows all gene sets with FDR < `r kFdr`.
+
+```{r}
+reactome_res  %>%
+  dplyr::filter(FDR < kFdr) %>%
+  camera_table()
+caption <- "SUPT4H1 RNAi effect in HEK293 cells"
+```
+
+```{r fig.width=3.5, fig.height=4, fig.show='hold', fig.cap=caption, cache=FALSE}
+plot_gsea(tt, gene_sets, "Peptide chain elongation", xlim = c(-2, 2)) + 
+  theme(legend.position = "bottom", plot.title = element_text(size = 14))
+```
+
+## Figure S4B: SUPT4H1 RNAi effect in fibroblasts
+
+```{r}
+v <- fit_fibroblasts(normalize = "spike-in", output = "v")
+fit <- fit_fibroblasts(normalize = "spike-in", output = "fit")
+tt <- topTable(fit, coef = "SUPT4H1", n = Inf)
+```
+
+```{r}
+reactome_res <- camera(v, ids2indices(gene_sets, row.names(v)),
+                       contrast = match("SUPT4H1", colnames(v$design))) %>%
+  tibble::rownames_to_column("set_name") %>%
+  dplyr::arrange(PValue)
+```
+
+The following table shows all gene sets with FDR < `r kFdr`.
+
+```{r}
+reactome_res  %>%
+  dplyr::filter(FDR < kFdr) %>%
+  camera_table()
+caption <- "SUPT4H1 RNAi effect in fibroblasts"
+```
+
+```{r fig.width=3.5, fig.height=4, fig.show='hold', fig.cap=caption, cache=FALSE}
+plot_gsea(tt, gene_sets, "Peptide chain elongation", xlim = c(-5, 5)) + 
+  theme(legend.position = "bottom", plot.title = element_text(size = 14))
+```

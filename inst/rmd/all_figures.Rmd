@@ -1,0 +1,77 @@
+---
+title: "Reproducing figures published in Naguib et al, 2018"
+date: "`r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{All figures}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+options(knitr.duplicate.label = 'allow')
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+```
+
+```{r}
+# switch to the project-specific library if you have one (e.g. in the companion
+# docker container)
+library(switchr)
+if (file.exists(file.path(switchrBaseDir(), "supt4h1"))) {
+  switchrNoUnload(TRUE)
+  switchTo("supt4h1")
+}
+```
+
+```{r}
+library(SUPT4H1)
+library(dplyr)
+library(edgeR)
+library(ggplot2)
+library(limma)
+library(purrr)
+library(rlang)
+library(stringr)
+library(tibble)
+library(tidyr)
+```
+
+```{r figure_1, child = 'figure_1.Rmd'}
+```
+
+```{r figure_s1, child = 'figure_S1.Rmd'}
+```
+
+```{r figure_2, child = 'figure_2.Rmd'}
+```
+
+```{r figure_s2, child = 'figure_S2.Rmd'}
+```
+
+```{r figure_3, child = 'figure_3.Rmd'}
+```
+
+```{r figure_s3, child = 'figure_S3.Rmd'}
+```
+
+```{r figure_4, child = 'figure_4.Rmd'}
+```
+
+```{r figure_S4, child = 'figure_S4.Rmd'}
+```
+
+## Session information
+
+```{r, results='asis', echo=FALSE}
+sessionInfo()
+```

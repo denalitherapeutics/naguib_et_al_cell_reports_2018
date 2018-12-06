@@ -1,0 +1,111 @@
+---
+title: "Figure 1"
+date: "`r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Figure 1}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+```
+
+```{r eval=TRUE, include=FALSE}
+# switch to the project-specific library if you have one (e.g. in the companion
+# docker container)
+library(switchr)
+if (file.exists(file.path(switchrBaseDir(), "supt4h1"))) {
+  switchrNoUnload(TRUE)
+  switchTo("supt4h1")
+}
+```
+
+```{r include=FALSE}
+library(SUPT4H1)
+library(dplyr)
+library(edgeR)
+library(ggplot2)
+library(rlang)
+library(stringr)
+library(tibble)
+```
+
+```{r}
+kLabels = list(
+  SUPT4H1 = "SUPT4H1 siRNA", 
+  Scramble = "Scramble siRNA",
+  Control = "Control cell line", 
+  DARP1 = "DARP cell line 1",
+  DARP2 = "DARP cell line 2"
+  )
+kColors <- setNames(rep(c("#4DAF4A", "#377EB8", "#E41A1C"), 2),
+                    c("Control", "DARP1", "DARP2", "Control cell line",
+                      "DARP cell line 1", "DARP cell line 2"))
+theme_set(theme_linedraw(16))
+```
+
+```{r}
+dge <- load_dataset("HEK293")
+
+cpm_norm <- edgeR::cpm(
+    dge,
+    normalized.lib.sizes = TRUE, log = FALSE) %>%
+    as.data.frame() %>%
+    tibble::rownames_to_column(var = "ensembl_gene_id") %>%
+    tidyr::gather(key = "sample_id", value = "cpm", -ensembl_gene_id) %>%
+    dplyr::left_join(dge$samples, by = "sample_id") %>%
+    dplyr::left_join(dge$genes, by = "ensembl_gene_id") 
+```
+
+## Figure 1D: Concordance between spike-ins across technical replicates
+
+```{r fig.width=6.5, fig.height=5.25, fig.cap="Figure 1D: Technical replicates", cache=FALSE, fig.show='hold'}
+spike_ins <- cpm_norm %>%
+  dplyr::filter(spikein == TRUE) %>%
+  dplyr::mutate(replicate = paste("Replicate", 
+                                  str_split_fixed(name, 
+                                                  pattern = "_", n = 3)[, 3],
+                                  sep = "_")) %>%
+  dplyr::select(hgnc_symbol, group, replicate, cpm, cell_line, treatment) %>%
+  tidyr::spread(replicate, cpm) %>%
+  dplyr::mutate(cell_line = dplyr::recode(cell_line, !!!kLabels),
+                treatment = dplyr::recode(treatment, !!!kLabels))
+
+p <- spike_ins %>%
+  dplyr::filter(Replicate_1 > 0 & Replicate_2 > 0) %>%
+  ggplot(aes(x = Replicate_1, y = Replicate_2, fill = cell_line)) +
+  geom_point(shape = 21, color = "grey", size = 3, alpha = 0.5) +
+  geom_rug(data = dplyr::filter(spike_ins, 
+                                Replicate_1 <= 0 | Replicate_2 <= 0),
+           sides = "bl",
+           aes(color = cell_line)) +
+  scale_x_continuous(trans = scales::log10_trans(),
+                     labels = SUPT4H1::human_numbers,
+                     breaks = 10^(seq(-2, 3, by = 1))
+                     ) +
+  scale_y_continuous(trans = scales::log10_trans(),
+                     labels = SUPT4H1::human_numbers,
+                     breaks = 10^(seq(-2, 3, by = 1))) +
+  scale_fill_manual(values = kColors, name = "") +
+  scale_color_manual(values = kColors, name = "") +
+  facet_grid(treatment ~ cell_line) +
+  geom_abline(slope = 1, intercept = 0) +
+  theme(panel.grid = element_blank()) + 
+  xlab("Replicate 1\nSpike-in transcripts,\nglobal normalization (CPM)") +
+  ylab("Replicate 2\nSpike-in transcripts,\nglobal normalization (CPM)") +
+  theme(legend.position = "bottom")
+
+print(p)
+```

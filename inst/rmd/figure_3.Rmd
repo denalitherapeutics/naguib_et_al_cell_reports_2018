@@ -1,0 +1,46 @@
+---
+title: "Figure 3"
+date: "`r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Figure 3}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+```
+
+```{r include=FALSE}
+# switch to the project-specific library if you have one (e.g. in the companion
+# docker container)
+library(switchr)
+if (file.exists(file.path(switchrBaseDir(), "supt4h1"))) {
+  switchrNoUnload(TRUE)
+  switchTo("supt4h1")
+}
+```
+
+```{r include=FALSE}
+library(SUPT4H1)
+library(dplyr)
+library(ggplot2)
+theme_set(theme_linedraw(base_size = 14))
+```
+
+## Figure 3D: SUPT4H1 RNAi
+
+```{r fig.width=5, fig.height=3.5, fig.show='hold', fig.cap="Figure 3D: SUPT4H1 RNAi effect assessed by flow cytometry", cache=FALSE}
+plot_flow_density(load_flow_data("siRNA"))
+```

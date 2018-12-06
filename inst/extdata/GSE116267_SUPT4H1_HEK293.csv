@@ -1,0 +1,13 @@
+sample_id,name,treatment,cell_line,ercc_mix
+S168,Scramble_DARP2_1,Scramble,DARP2,mix2
+S190,SPT4_DARP1_1,SUPT4H1,DARP1,mix1
+S255,Scramble_Control_1,Scramble,Control,mix2
+S320,Scramble_DARP1_1,Scramble,DARP1,mix2
+S420,SPT4_Control_1,SUPT4H1,Control,mix1
+S458,Scramble_Control_2,Scramble,Control,mix2
+S487,SPT4_DARP1_2,SUPT4H1,DARP1,mix1
+S622,Scramble_DARP2_2,Scramble,DARP2,mix2
+S623,SPT4_Control_2,SUPT4H1,Control,mix1
+S783,Scramble_DARP1_2,Scramble,DARP1,mix2
+S832,SPT4_DARP2_1,SUPT4H1,DARP2,mix1
+S912,SPT4_DARP2_2,SUPT4H1,DARP2,mix1

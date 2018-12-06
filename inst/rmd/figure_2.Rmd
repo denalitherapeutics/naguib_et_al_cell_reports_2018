@@ -1,0 +1,248 @@
+---
+title: "Figure 2"
+date: "`r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Figure 2}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+```
+
+```{r eval=TRUE, include=FALSE}
+# switch to the project-specific library if you have one (e.g. in the companion
+# docker container)
+library(switchr)
+if (file.exists(file.path(switchrBaseDir(), "supt4h1"))) {
+  switchrNoUnload(TRUE)
+  switchTo("supt4h1")
+}
+```
+
+```{r include=FALSE}
+library(SUPT4H1)
+library(dplyr)
+library(edgeR)
+library(ggplot2)
+library(limma)
+library(stringr)
+library(tidyr)
+```
+
+```{r}
+kLabels = list(
+  SPT4 = "SUPT4H1\nsiRNA", 
+  Scramble = "Scramble\nsiRNA",
+  Control = "Control cell line", 
+  DARP1 = "DARP cell line 1",
+  DARP2 = "DARP cell line 2",
+  Scramble_Control_mix2_A = "Scramble siRNA, Control cells",
+  Scramble_DARP1_mix2_A = "Scramble siRNA, DARP1 cells",
+  Scramble_DARP2_mix2_A = "Scramble siRNA, DARP2 cells",
+  SPT4_Control_mix1_A = "SUPT4H1 siRNA, Control cells",
+  SPT4_DARP1_mix1_A = "SUPT4H1 siRNA, DARP1 cells",
+  SPT4_DARP2_mix1_A = "SUPT4H1 siRNA, DARP2 cells")
+theme_set(theme_linedraw(16))
+```
+
+# HEK293 cell model
+
+```{r}
+dge <- load_dataset("HEK293")
+```
+
+```{r}
+# Global normalization
+fit <- fit_hek293(dge, normalize = "spike-in")
+tt <- topTable(fit, coef = "SUPT4H1", n = Inf)
+```
+
+## Figure 2A
+
+```{r fig.height = 5, fig.width = 5.5, fig.show='hold', fig.cap="Figure 2A: SUPT4H1 effect (Spike-in normalization)", cache=FALSE}
+plot_boxes(tt, labels = TRUE, cex = 5, nudge_y = 0.5, show_spt4 = TRUE,
+           nudge_spt4 = 0.6, ylim = c(-5, 2)) +
+  theme(legend.position = "none", plot.title = element_text(size = 14)) +
+  ggtitle(bquote(
+      italic("SUPT4H1")~"RNAi in HEK293T cells")) +
+  ylab("Mean observed fold change (log2)")
+```
+
+## Figure 2B
+
+```{r fig.height = 4, fig.width = 5.5, fig.show='hold', fig.cap="Figure 2B: MA plot (Spike-in normalization)", cache=FALSE}
+plot_ma(tt) +
+  ggtitle(label = "Spike-in normalization") + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  theme(legend.position = "none", plot.title = element_text(size = 14),
+        plot.subtitle = element_text(size = 12))
+```
+
+## Figure 2C
+
+# HEK293, fit separately for each stable cell line
+
+## Control cell line
+
+```{r fig.height = 4.5, fig.width = 5.5, fig.show='hold', fig.cap="Figure 2C: SUPT4H1 effect in Control cell line (spike-in normalization)", cache=FALSE}
+# Spike-in normalization
+fit <- fit_hek293_lines(dge, line = "Control", normalize = "spike-in")
+tt <- topTable(fit, coef = "SUPT4H1", n = Inf)
+
+plot_boxes(tt, labels = TRUE, cex = 5, nudge_y = 0.6, show_spt4 = TRUE,
+           nudge_spt4 = 0.6, ylim = c(-5.5, 2)) +
+  theme(legend.position = "none", plot.title = element_text(size = 14)) +
+  ggtitle(bquote(
+      italic("SUPT4H1")~"RNAi in HEK293T control cells")) +
+  ylab("Mean observed fold change (log2)")
+```
+
+## DARP1 cell line
+
+```{r fig.height = 4.5, fig.width = 5.5, fig.show='hold', fig.cap="Figure 2C: SUPT4H1 effect in DARP1 cell line (spike-in normalization)", cache=FALSE}
+# Spike-in normalization
+fit <- fit_hek293_lines(dge, line = "DARP1", normalize = "spike-in")
+tt <- topTable(fit, coef = "SUPT4H1", n = Inf)
+
+plot_boxes(tt, labels = TRUE, cex = 5, nudge_y = 0.6, show_spt4 = TRUE,
+           nudge_spt4 = 0.6, ylim = c(-5.5, 2)) +
+  theme(legend.position = "none", plot.title = element_text(size = 14)) +
+  ggtitle(bquote(
+      italic("SUPT4H1")~"RNAi in HEK293T DARP1 cells")) +
+  ylab("Mean observed fold change (log2)")
+```
+
+## DARP2 cell line
+
+```{r fig.height = 4.5, fig.width = 5.5, fig.show='hold', fig.cap="Figure 2C: SUPT4H1 effect in DARP2 cell line (spike-in normalization)", cache=FALSE}
+# Spike-in normalization
+fit <- fit_hek293_lines(dge, line = "DARP2", normalize = "spike-in")
+tt <- topTable(fit, coef = "SUPT4H1", n = Inf)
+
+plot_boxes(tt, labels = TRUE, cex = 5, nudge_y = 0.6, show_spt4 = TRUE,
+           nudge_spt4 = 0.6, ylim = c(-5.5, 2)) +
+  theme(legend.position = "none", plot.title = element_text(size = 14)) +
+  ggtitle(bquote(
+      italic("SUPT4H1")~"RNAi in HEK293T DARP2 cells")) +
+  ylab("Mean observed fold change (log2)")
+```
+
+## Figure 2D
+
+EGFP reporter expression in HEK293 cell lines (global normalization)
+
+```{r fig.width=8, fig.height=4, fig.show='hold', fig.cap="Figure 2D: GFP expression (HEK293 cells, RNAseq)", cache=FALSE}
+dge$samples$norm.factors <- calcNormFactors(
+  dge[!dge$genes$spikein, ])$samples$norm.factors
+plot_expression("GFP", dge, labels = kLabels)
+```
+
+# HEK293-71D cell model
+
+The HEK293-71D reporter cell line expresses a modified reporter construct
+that includes intronic sequences and yields lower baseline EGFP levels.
+
+```{r}
+dge <- load_dataset("HEK293_71D")
+fit <- fit_hek293_71D(dge, normalize = "spike-in")
+tt <- topTable(fit, coef = "SUPT4H1", n = Inf)
+```
+
+## Figure 2G
+
+```{r fig.height = 5, fig.width = 5.5, fig.show='hold', fig.cap="Figure 2G: SUPT4H1 effect (Spike-in normalization)", cache=FALSE}
+plot_boxes(tt, labels = TRUE, cex = 5, nudge_y = 0.7, show_spt4 = TRUE,
+           nudge_spt4 = 0.35, ylim = c(-5, 2)) +
+  theme(legend.position = "none", plot.title = element_text(size = 14)) +
+  ggtitle(bquote(
+      italic("SUPT4H1")~"RNAi in HEK293T 71D cells")) +
+  ylab("Mean observed fold change (log2)")
+```
+
+## Figure 2H
+
+SUPT4H1 effect on EGFP reporter expression in HEK293-71D reporter cells
+(global normalization). Error bars show the mean +/- one standard deviation.
+
+```{r fig.height = 2.7, fig.width = 3.5, fig.show='hold', fig.cap="Figure 2H: SUPT4H1 effect on GFP-reporter in HEK293T 71D cells (global normalization)", cache=FALSE}
+dge$samples$norm.factors <- calcNormFactors(
+  dge[!dge$genes$spikein, ])$samples$norm.factors
+
+plot_scatter(dge, gene_symbol = "GFP") + 
+  scale_y_continuous(limits = c(1, NA)) +
+  stat_summary(fun.data = "mean_sdl", fun.args = list(mult = 1)) +
+  theme(text = element_text(size = 16)) +
+  ggtitle("")
+```
+
+## Figure 2I
+
+Comparison of the SUPT4H1 RNAi effect on intronic / exonic counts of
+protein-coding genesin HEK293 cells.
+
+```{r}
+# load exon- and intron-level counts
+exons <- load_dataset("HEK293")
+exons <- exons[exons$genes$gene_biotype %in% c(
+  "protein_coding", "control"), ]
+norm_factors <- edgeR::calcNormFactors(exons[exons$genes$spikein, ]
+                                       )$samples$norm.factors
+exons$samples$norm.factors <- norm_factors
+
+# intron-level counts were normalized based on exonic counts of ERCC spike-ins,
+# because the spike-ins do not have introns
+introns <- load_intron_counts()
+introns <- introns[introns$genes$gene_biotype %in% c(
+  "protein_coding", "control"), ]
+introns <- introns[, colnames(exons)]
+introns$samples$norm.factors <- norm_factors
+```
+
+```{r message=FALSE}
+exons <- fit_hek293(dge = exons, normalize = "none")
+introns <- fit_hek293(dge = introns, normalize = "none")
+
+exons_tt <- topTable(exons, coef = "SUPT4H1", n = Inf)
+introns_tt <- topTable(introns, coef = "SUPT4H1", n = Inf)
+```
+
+```{r fig.height = 5, fig.width = 5, fig.show='hold', fig.cap="Figure 2I: SUPT4H1 effect on exonic and intronic counts (spike-in normalization)", cache=FALSE}
+tt <- dplyr::inner_join(
+  dplyr::select(introns_tt, hgnc_symbol, ensembl_gene_id, logFC, t),
+  dplyr::select(exons_tt, ensembl_gene_id, logFC, t),
+  by = "ensembl_gene_id", 
+  suffix = c(".introns", ".exons")
+)
+
+par(mar = c(5.1, 5.1, 4.1, 2.1))
+with(tt, smoothScatter(logFC.introns, logFC.exons,
+     xlim = c(-5, 2), ylim = c(-5, 2),
+     xlab = "Introns (log2 fold change)",
+     ylab = "Exons (log2 fold change)",
+     main = "SUPT4H1 RNAi effect")
+     )
+abline(0, 1, lty = 2)
+abline(h = 0, v = 0, lwd = 0.5)
+
+highlight = match("SUPT4H1", tt$hgnc_symbol)
+points(x = tt[highlight, "logFC.introns"], y = tt[highlight, "logFC.exons"],
+     cex = 0.7, col = "#2171B5", pch = 19)
+
+text(x = tt[highlight, "logFC.introns"], y = tt[highlight, "logFC.exons"],
+     pos = 3, labels = "SUPT4H1", cex = 0.7)
+par(mar = c(5.1, 4.1, 4.1, 2.1))
+```
+

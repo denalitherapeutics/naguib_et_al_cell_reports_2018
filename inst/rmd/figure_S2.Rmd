@@ -1,0 +1,223 @@
+---
+title: "Figure S2"
+date: "`r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Figure S2}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+```
+
+```{r eval=TRUE, include=FALSE}
+# switch to the project-specific library if you have one (e.g. in the companion
+# docker container)
+library(switchr)
+if (file.exists(file.path(switchrBaseDir(), "supt4h1"))) {
+  switchrNoUnload(TRUE)
+  switchTo("supt4h1")
+}
+```
+
+```{r include=FALSE}
+library(SUPT4H1)
+library(dplyr)
+library(edgeR)
+library(ggplot2)
+library(limma)
+library(stringr)
+library(tidyr)
+```
+
+```{r}
+kLabels = list(
+  SPT4 = "SUPT4H1\nsiRNA", 
+  Scramble = "Scramble\nsiRNA",
+  Control = "Control cell line", 
+  DARP1 = "DARP cell line 1",
+  DARP2 = "DARP cell line 2",
+  Scramble_Control_mix2_A = "Scramble siRNA, Control cells",
+  Scramble_DARP1_mix2_A = "Scramble siRNA, DARP1 cells",
+  Scramble_DARP2_mix2_A = "Scramble siRNA, DARP2 cells",
+  SPT4_Control_mix1_A = "SUPT4H1 siRNA, Control cells",
+  SPT4_DARP1_mix1_A = "SUPT4H1 siRNA, DARP1 cells",
+  SPT4_DARP2_mix1_A = "SUPT4H1 siRNA, DARP2 cells")
+theme_set(theme_linedraw(16))
+```
+
+```{r}
+dge <- load_dataset("HEK293")
+```
+
+## Figure S2A
+
+Boxplot of estimaged log2 fold-changes for the ERCC spike-ins in the HEK293
+cell model after global normalization.
+
+```{r}
+fit_global <- fit_hek293(dge, normalize = "global")
+tt <- topTable(fit_global, coef = "SUPT4H1", n = Inf)
+```
+
+```{r fig.height = 5, fig.width = 5.5, fig.show='hold', fig.cap="Figure S2A: SUPT4H1 effect (Global normalization)", cache=FALSE}
+plot_boxes(tt, labels = TRUE, cex = 5, nudge_y = 0.5, show_spt4 = TRUE,
+           nudge_spt4 = 0.6, ylim = c(-5, 2)) +
+  ggtitle("Global normalization") +
+  ylab("Mean observed fold change (log2)") +
+  theme(legend.position = "none", plot.title = element_text(size = 14),
+        plot.subtitle = element_text(size = 12))
+```
+
+## Figure S2B
+
+MA-plot of estimaged log2 fold-changes for the ERCC spike-ins in the HEK293
+cell model after global normalization.
+
+```{r fig.height = 4, fig.width = 5.5, fig.show='hold', fig.cap="Figure S2B: MA plot (Global normalization)", cache=FALSE}
+plot_ma(tt) +
+  ggtitle(label = "Global normalization") + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  theme(legend.position = "none", plot.title = element_text(size = 14),
+        plot.subtitle = element_text(size = 12))
+```
+
+## Figure S2C
+
+SUPT4H1 effect by gene biotype (after spike-in normalization).
+
+```{r}
+# Spike-in normalization
+fit_spikein <- fit_hek293(dge, normalize = "spike-in")
+tt <- topTable(fit_spikein, coef = "SUPT4H1", n = Inf)
+```
+
+```{r fig.width=8.5, fig.height=6, , fig.show='hold', fig.cap="Figure S2C: SUPT4H1 effect by gene biotype (Spike-in normalization)", cache=FALSE}
+plot_biotypes(tt)
+```
+
+## Figure S2D
+
+SUPT4H1 effect on RNA polymerase components (after spike-in normalization).
+The error bars show the mean and the standard error for each RNA polymerase complex.
+
+```{r fig.height = 3.5, fig.width = 3.5, fig.show='hold', fig.cap="Figure S2D: Polymerase subunits (Spike-in normalization)", cache=FALSE}
+pol_genes <- data.frame(
+  hgnc_symbol = c("POLR1A", "POLR1B", "POLR1C", "POLR1C", "POLR1D", "POLR1D",
+                  "POLR1E", "POLR2A", "POLR2B", "POLR2C",
+                  "POLR2D", "POLR2E", "POLR2F", "POLR2G", "POLR2H",
+                  "POLR2I", "POLR2I", "POLR2J", "POLR2J2", "POLR2J3",
+                  "POLR2K", "POLR2L", "POLR2M", "POLR3A", "POLR3B",
+                  "POLR3C", "POLR3D", "POLR3E", "POLR3F", "POLR3G",
+                  "POLR3H", "POLR3K", "POLRMT"),
+  polymerase = c("I", "I", "I", "III", "I", "III", "I", "II", "II", "II",
+                 "II", "II", "II", "II", "II", "II", "I", "II",
+                 "II", "II", "II", "II", "II", "III", "III",
+                 "III", "III", "III", "III", "III", "III", "III",
+                 "MT"),
+  stringsAsFactors = FALSE
+) %>%
+  dplyr::select(hgnc_symbol, polymerase) %>%
+  dplyr::inner_join(tt, by = "hgnc_symbol")
+
+ggplot(pol_genes, aes(x = polymerase, y = logFC)) +
+  geom_jitter(width = 0.1, shape = 21, size = 3,
+              fill = "orange", color = "darkgrey") +
+  stat_summary(fun.data = "mean_se") +
+  scale_y_continuous(limits = c(NA, 0)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  xlab("RNA polymerase complex") +
+  ylab("log2 fold change\n(spike-in normalized)") +
+  ggtitle("SUPT4H1 RNAi effect") +
+  theme(panel.grid = element_blank())
+```
+
+# HEK293 cell line models, fit separately for each stable cell line
+
+## Control cell line
+
+```{r fig.height = 4.5, fig.width = 5.5, fig.show='hold', fig.cap="Figure 2C: SUPT4H1 effect in Control cell line (spike-in normalization)", cache=FALSE}
+# Spike-in normalization
+fit_spikein <- fit_hek293_lines(dge, line = "Control", normalize = "spike-in")
+tt <- topTable(fit_spikein, coef = "SUPT4H1", n = Inf)
+plot_ma(tt) +
+ggtitle("Control cell line")
+```
+
+## DARP1 cell line
+
+```{r fig.height = 4.5, fig.width = 5.5, fig.show='hold', fig.cap="Figure 2C: SUPT4H1 effect in DARP1 cell line (spike-in normalization)", cache=FALSE}
+# Spike-in normalization
+fit_spikein <- fit_hek293_lines(dge, line = "DARP1", normalize = "spike-in")
+tt <- topTable(fit_spikein, coef = "SUPT4H1", n = Inf)
+plot_ma(tt) +
+ggtitle("DARP1 cell line")
+```
+
+## DARP2 cell line
+
+```{r fig.height = 4.5, fig.width = 5.5, fig.show='hold', fig.cap="Figure 2C: SUPT4H1 effect in DARP2 cell line (spike-in normalization)", cache=FALSE}
+# Spike-in normalization
+fit_spikein <- fit_hek293_lines(dge, line = "DARP2", normalize = "spike-in")
+tt <- topTable(fit_spikein, coef = "SUPT4H1", n = Inf)
+plot_ma(tt) +
+ggtitle("DARP2 cell line")
+```
+
+## Figure S2F
+
+Relationship between SUPT4H1 RNAi effect and annotated gene length in HEK293
+cell lines (spike-in normalization).
+
+```{r results='hide'}
+fit <- fit_hek293(dge = dge, normalize = "spike-in")
+gene_lengths <- read.csv(system.file("extdata", "gene_length.csv.gz", 
+                                      package = "SUPT4H1"))
+fit$genes$length <- gene_lengths[
+  match(fit$genes$entrez_id, gene_lengths$entrez_id), "length"] / 1000
+tt <- topTable(fit, coef = "SUPT4H1", n = Inf, sort.by = "none")
+```
+
+```{r fig.width=8.5, fig.height=6, fig.show='hold', fig.cap="Figure S5: SUPT4H1 effect is not gene-length dependent", cache=FALSE} 
+par(mar = c(5, 6, 4, 2))
+with(tt, plot(
+  x = length,
+  y = logFC,
+  pch = 19,
+  log = "x",
+  col = adjustcolor("black", alpha.f = 0.25),
+  ylim = c(-5, 2),
+  xlim = c(0.5, 0.5e4),
+  xlab = "Annotated gene length (kb)",
+  ylab = "SUPT4H1 RNAi effect\n(log2 fold change)",
+  xaxt = "n",
+  cex.lab = 1.5,
+  cex.axis = 1.5
+))
+ticks = 10^seq(0, 4, by = 1)
+axis(1, at = ticks, labels = prettyNum(ticks), cex.axis = 1.5)
+
+abline(h = 0, lty = 2)
+with(subset(tt, hgnc_symbol == "SUPT4H1"), {
+  points(length, logFC, col = "firebrick", pch = 19, cex = 1.5)
+  text(length, logFC, col = "firebrick", labels = c("SUPT4H1"), pos = 4, 
+       cex = 1.5)
+})
+loess_fit <- with(
+  subset(tt, length > 1 & length < 1e3),
+  lowess(length, logFC)
+)
+```
+

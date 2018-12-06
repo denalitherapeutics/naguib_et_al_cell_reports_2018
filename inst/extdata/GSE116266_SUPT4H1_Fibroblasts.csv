@@ -1,0 +1,10 @@
+sample_id,name,rnai_treatment,treatment_conc,treatment_conc_unit,ercc_mix,replicate
+sc20_1,sc_20nM_1,scramble,20,nM,mix1,1
+sc20_2,sc_20nM_2,scramble,20,nM,mix1,2
+sc20_3,sc_20nM_3,scramble,20,nM,mix1,3
+SUPT4H1_10_1,SUPT4H1_10nM_1,SUPT4H1,10,nM,mix2,1
+SUPT4H1_10_2,SUPT4H1_10nM_2,SUPT4H1,10,nM,mix2,2
+SUPT4H1_10_3,SUPT4H1_10nM_3,SUPT4H1,10,nM,mix2,3
+SUPT4H1_5_1,SUPT4H1_5nM_1,SUPT4H1,5,nM,mix2,1
+SUPT4H1_5_2,SUPT4H1_5nM_2,SUPT4H1,5,nM,mix2,2
+SUPT4H1_5_3,SUPT4H1_5nM_3,SUPT4H1,5,nM,mix2,3

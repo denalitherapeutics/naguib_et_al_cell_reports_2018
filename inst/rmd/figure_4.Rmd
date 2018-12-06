@@ -1,0 +1,106 @@
+---
+title: "Figure 4"
+date: "`r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Figure 4}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+```
+
+```{r eval=TRUE, include=FALSE}
+# switch to the project-specific library if you have one (e.g. in the companion
+# docker container)
+library(switchr)
+if (file.exists(file.path(switchrBaseDir(), "supt4h1"))) {
+  switchrNoUnload(TRUE)
+  switchTo("supt4h1")
+}
+```
+
+```{r include=FALSE}
+library(SUPT4H1)
+library(dplyr)
+library(ggplot2)
+library(limma)
+library(purrr)
+library(rlang)
+theme_set(theme_linedraw(base_size = 16) +
+          theme(legend.key = element_blank()))
+```
+
+```{r}
+kLabels <- list(
+    SUPT4H1 = "SUPT4H1 siRNA",
+    Scrambled = "Scrambled siRNA",
+    SUPT4H1_5nM = "SUPT4H1 siRNA (5 nM)",
+    SUPT4H1_10nM = "SUPT4H1 siRNA (10 nM)"
+  )
+```
+
+```{r}
+dge <- load_dataset(experiment = "Fibroblasts")
+```
+
+## Figure 4C
+
+Estimated SUPT4H1 RNAi effect, separately for each siRNA concentration.
+
+```{r}
+# separate fits for each siRNA concentration
+fits <- fit_fibroblast_conc(normalize = "spike-in")
+# collect the results from all fits in a single data.frame
+tt <- purrr::map_df(
+  setNames(names(fits), names(fits)),
+  function(concentration) {
+    tt <- topTable(fits[[concentration]], coef = "SUPT4H1", n = Inf,
+                   sort.by = "none")
+    return(tt)
+  }, .id = "group") %>%
+  dplyr::mutate(group = dplyr::recode(group, !!!kLabels),
+                group = factor(group, levels = c(
+                  "SUPT4H1 siRNA (5 nM)", "SUPT4H1 siRNA (10 nM)")))
+caption <- paste("Figure 4C: SUPT4H1 RNAi effect in fibroblasts", 
+                 "(spike-in normalization, separately for each siRNA", 
+                 "concentration)")
+```
+
+```{r fig.height = 7, fig.width = 7, fig.show='hold', fig.cap=caption, cache=FALSE}
+plot_boxes(tt, ylim = c(-8, 3), show_spt4 = TRUE, nudge_spt4 = 0.75,
+               labels = FALSE, cex = 5, nudge_y = 1.3) +
+  facet_grid(group ~ class, drop = TRUE, space = "free_x",
+             scales = "free_x") +
+  ggtitle(bquote(italic("SUPT4H1")~"RNAi in human fibroblasts"))
+```
+
+## Figure 4D
+
+Joint estimate of SUPT4H1 RNAi effect across both siRNA concentrations.
+
+```{r}
+fit <- fit_fibroblasts(normalize = "spike-in")
+tt <- topTable(fit, coef = "SUPT4H1", n = Inf)
+caption <- paste("Figure 4D: SUPT4H1 RNAi effect in fibroblasts", 
+                 "(spike-in normalization, mean effect across siRNA", 
+                 "concentrations)")
+```
+
+```{r fig.height = 4.5, fig.width = 6, fig.show='hold', fig.cap=caption, cache=FALSE}
+plot_boxes(tt, ylim = c(-8, 3), show_spt4 = TRUE, nudge_spt4 = 0.75,
+           labels = TRUE, cex = 5, nudge_y = 1.3) +
+  ggtitle(bquote(italic("SUPT4H1")~"RNAi in human fibroblasts"))
+```
