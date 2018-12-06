@@ -1,13 +1,13 @@
 Package: SUPT4H1
 Type: Package
-Title: Companion package for Naguib et al, 2018
+Title: Companion package for Naguib et al, 2019
 Version: 0.2.0
 Authors@R: c(
     person("Thomas", "Sandmann", , "sandmann@dnli.com", c("aut", "cre")),
     person("Denali Therapeutics", role = c("cph", "fnd"))
     )
 Description: Functions and vignettes that generate the figures and results for
-    Naguib et al, 2018
+    Naguib et al, Cell Reports, 2019
 Imports:
     AnnotationDbi (>= 1.42.1),
     dplyr (>= 0.7.5),

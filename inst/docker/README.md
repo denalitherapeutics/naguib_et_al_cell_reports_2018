@@ -1,6 +1,6 @@
 This directory contains the necessary instructions to create a docker image
 with versioned R packages that can be used to reproduce the analyses published
-in Naguib et al, 2018.
+in Naguib et al, Cell Reports, 2019.
 
 # Retrieving the docker image from dockerhub
 
