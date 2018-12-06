@@ -1,4 +1,4 @@
-# SUPT4H1 companion R package for Naguib et al, Cell Reports, 2018
+# SUPT4H1 companion R package for Naguib et al, Cell Reports, 2019
 
 This repository contains the `SUPT4H1` R package that can be used to reproduce
 analyses and figures from Naguib *et al*, which has been accepted for
@@ -14,7 +14,7 @@ To install this R package and the necessary dependencies, please use the
 ```r
 install.packages(c("BiocManager", "remotes"))
 library(BiocManager)
-BiocManager::install("denalitherapeutics/naguib_et_al_cell_reports_2018",
+BiocManager::install("denalitherapeutics/naguib_et_al_cell_reports_2019",
                      dependencies = TRUE)
 ```
 
@@ -68,7 +68,7 @@ The final, precompiled docker image is available via
 and can be retrieved with the following shell command:
 
 ```bash
-docker pull denalitherapeutics/naguib_et_al_cell_reports_2018
+docker pull denalitherapeutics/naguib_et_al_cell_reports_2019
 ```
 
 To explore the code in this repository within the docker container, you can
@@ -76,9 +76,9 @@ clone the repository onto your local machine and share the directory with
 a docker container, e.g. with the following shell commands:
 
 ```bash
-git clone git@github.com:denalitherapeutics/naguib_et_al_cell_reports_2018.git SUPT4H1
+git clone git@github.com:denalitherapeutics/naguib_et_al_cell_reports_2019.git SUPT4H1
 cd SUPT4H1
-docker run --rm -v $PWD:/home/rstudio/SUPT4H1 -d -p 8787:8787 denalitherapeutics/naguib_et_al_cell_reports_2018
+docker run --rm -v $PWD:/home/rstudio/SUPT4H1 -d -p 8787:8787 denalitherapeutics/naguib_et_al_cell_reports_2019
 ```
 
 You can access an Rstudio session that runs within the docker container by
